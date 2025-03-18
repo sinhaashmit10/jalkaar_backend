@@ -1,12 +1,11 @@
 import validator from 'validator';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs'; // Changed from bcrypt to bcryptjs
 import userModel from "../models/userModel.js";
 import jwt from 'jsonwebtoken'
 
 const createToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET)
 }
-
 
 // Route for user login
 const loginUser = async(req, res)=>{
@@ -17,7 +16,7 @@ const loginUser = async(req, res)=>{
         if (!user) {
             return res.json({success:false, message: "User does not exist."})
         }
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(password, user.password); // No change here, bcryptjs has the same API
 
         if (isMatch) {
             const token = createToken(user._id)
@@ -52,8 +51,8 @@ const registerUser = async(req, res)=>{
         }
 
         // Hashing user password
-        const salt = await bcrypt.genSalt(10)
-        const hashedPassword = await bcrypt.hash(password,salt)
+        const salt = await bcrypt.genSalt(10) // bcryptjs has the same method
+        const hashedPassword = await bcrypt.hash(password,salt) // bcryptjs has the same method
 
         const newUser = new userModel({
             name, email, password:hashedPassword
@@ -79,13 +78,12 @@ const adminLogin = async(req, res)=>{
             res.json({success:true, token})
         }
         else{
-            res.json({success:false,message:"Inavlid Credentials"})
+            res.json({success:false,message:"Invalid Credentials"}) // Fixed typo in message
         }
     } catch (error) {
         console.log(error)
         res.json({success:false, message:error.message})
     }    
 }
-
 
 export { loginUser, registerUser, adminLogin }
